@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Currency Converter test Happy path should return the conversion report tests 1`] = `
+"Conversion Report:
+36527
+36527
+36527
+36527"
+`;

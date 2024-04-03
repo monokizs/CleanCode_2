@@ -1,7 +1,8 @@
+import { mock, mockReset } from "jest-mock-extended";
 import { CurrencyConverter } from "../src/currencyConverter";
 import { IExchangeRateService } from "../src/exchangeRateService";
 
-jest.mock('../src/exchangeRateService', () => {
+/*jest.mock('../src/exchangeRateService', () => {
     return {
         IExchangeRateService: jest.fn().mockImplementation(() => {
             return {
@@ -9,24 +10,67 @@ jest.mock('../src/exchangeRateService', () => {
             }
         })
     }
-});
+});*/
 
-describe('Rate test', () => {
-    let currencyConverter: CurrencyConverter;
-    const mockedIExchangeRateService = new IExchangeRateService();
+describe('Currency Converter test', () => {
+    let sut: CurrencyConverter;
+    const mockedIExchangeRateService = mock<IExchangeRateService>();
 
     beforeEach(()=>{
-        currencyConverter = new CurrencyConverter(mockedIExchangeRateService)
+        mockReset(mockedIExchangeRateService);
+        sut = new CurrencyConverter(mockedIExchangeRateService);
     })
 
-    it('should return the rate', () => {
-        // Arrange
+    describe('Happy path', ()=> {
+        it('should return the rate', () => {
+            // Arrange
+            mockedIExchangeRateService.getExchangeRate.mockReturnValue(365.27);    
+            // Act
+            const result = sut.Convert(100,"EUR","HUF");
+    
+            // Assert
 
-        // Act
-        currencyConverter.Convert(100,"EUR","HUF");
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("EUR","HUF");
+        })
 
-        // Assert
-        expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
-        expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("EUR","HUF");
+        it('should return the conversion report tests', () => {
+            // Arrange
+            mockedIExchangeRateService.getExchangeRate.mockReturnValue(365.27); 
+
+            // Act
+            const result = sut.GenerateConversionReport("EUR","HUF", new Date('2024-04-01'), new Date('2024-04-04'));
+
+            // Assert
+            expect(result).toMatchSnapshot();
+        })
+
+
+    })
+    
+    describe('Error path', ()=> {
+        it('should throw a Invalid amount input error if the amount does not a number', () => {
+            // Arrange
+            const errorMessage = "Invalid amount input.";
+            const expectedError = new Error(errorMessage);
+            mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
+
+            // Act
+            expect(() => sut.Convert(100,"EUR","HUF")).toThrow(expectedError);
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("EUR","HUF");
+        })
+
+        it('should throw an Unable to fetch exchange rate error if the rate is empty', () => {
+            // Arrange
+            const errorMessage = "Unable to fetch exchange rate.";
+            const expectedError = new Error(errorMessage);
+            mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
+
+            // Act
+            expect(() => sut.Convert(100,"GBP","HUF")).toThrow(expectedError);
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("GBP","HUF");
+        })
     })
 })
