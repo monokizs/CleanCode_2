@@ -1,0 +1,52 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore built JavaScript and TypeScript files
+*.js.map
+*.d.ts
+
+# Ignore Visual Studio Code directory
+.vscode/
+
+# Ignore WebStorm directory
+.idea/
+
+# Ignore any local configuration files
+*.env
+
+# Ignore npm debug log files
+npm-debug.log*
+
+# Ignore yarn error log files
+yarn-error.log*
+
+# Ignore TypeScript cache
+*.tsbuildinfo
+
+# Ignore coverage output
+coverage/
+
+# Ignore compiled output for TypeScript projects
+/dist/
+
+# Ignore compiled output for Babel
+lib/
+
+# Ignore Prettier configuration file
+.prettierrc
+
+# Ignore ESLint configuration file
+.eslintrc
+
+# Ignore TSLint configuration file
+tslint.json
+
+# Ignore Webpack build directory and manifest file
+/dist/
+manifest.json
+
+# Ignore Yarn integrity file
+.yarn-integrity
+
+# Ignore .npmrc file
+.npmrc
