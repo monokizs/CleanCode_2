@@ -32,7 +32,8 @@ export class CurrencyConverter {
     
     private calculateConversion(exchangeRate: number, conversions: number[], currentDate: Date) {
         const convertedAmount = this.FIXED_AMOUNT * exchangeRate; // Assume a fixed amount for simplicity
-        conversions.push(convertedAmount); currentDate.setDate(currentDate.getDate() + 1);
+        conversions.push(convertedAmount); 
+        currentDate.setDate(currentDate.getDate() + 1);
     }
     
     private validateExchangeRate(exchangeRate: number) { 
