@@ -1,6 +1,7 @@
 import { mock, mockReset } from "jest-mock-extended";
 import { CurrencyConverter } from "../src/currencyConverter";
 import { IExchangeRateService } from "../src/exchangeRateService";
+import { MyError } from "../src/errors/myError";
 
 /*jest.mock('../src/exchangeRateService', () => {
     return {
@@ -72,5 +73,22 @@ describe('Currency Converter test', () => {
             expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
             expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("GBP","HUF");
         })
+
+        it('should throw an Exchange rate not found error if the rate is empty', () => {
+            // Arrange
+            const errorMessage = 'Rate error.';
+            const expectedError = new Error(errorMessage);
+            const myErrorMessage = 'Exchange rate not found.';
+            const myExpectedError = new MyError(myErrorMessage, expectedError);
+            mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
+
+            // Act
+            expect(() => sut.Convert(100,"GBP","HUF")).toThrow(myExpectedError);
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
+            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("GBP","HUF");
+            
+        })
+
+
     })
 })

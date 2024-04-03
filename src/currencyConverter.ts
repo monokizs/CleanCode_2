@@ -1,3 +1,4 @@
+import { MyError } from "./errors/myError";
 import { IExchangeRateService } from "./exchangeRateService"; 
 
 
@@ -18,16 +19,25 @@ export class CurrencyConverter {
         const currentDate = new Date(startDate);
         
         while (currentDate <= endDate) { 
-            const exchangeRate = this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency); 
-            this.validateExchangeRate(exchangeRate); 
-            this.calculateConversion(exchangeRate, conversions, currentDate);
+            try{
+                const exchangeRate = this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency); 
+                this.validateExchangeRate(exchangeRate); 
+                this.calculateConversion(exchangeRate, conversions, currentDate);
+            } catch (error) {
+                throw new MyError('Exchange rate not found.', error as Error);
+            }
         }
         
         return `Conversion Report:\n${conversions.join('\n')}`;
     }
     
     private getExchangeRate(fromCurrency: string, toCurrency: string) {
-        return this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
+        try {
+            return this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
+        } catch (error) {
+            throw new MyError('Exchange rate not found.', error as Error);
+        }
+        
     }
     
     private calculateConversion(exchangeRate: number, conversions: number[], currentDate: Date) {
