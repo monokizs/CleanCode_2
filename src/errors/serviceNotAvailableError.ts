@@ -1,5 +1,5 @@
 export class ServiceNotAvailableError extends Error {
-    public constructor(message: string, public error?: Error) {
+    public constructor(message: string) {
         super(message);
         this.name = this.constructor.name;
     }

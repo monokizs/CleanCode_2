@@ -1,4 +1,4 @@
-export class endDateError extends Error {
+export class EndDateError extends Error {
     public constructor(message: string) {
         super(message);
         this.name = this.constructor.name;

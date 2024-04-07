@@ -1,6 +1,7 @@
-import { endDateError } from "./errors/endDateError";
-import { MyError } from "./errors/myError";
+import { UnknownError } from "./errors/unknownError";
+import { EndDateError } from "./errors/endDateError";
 import { ServiceNotAvailableError } from "./errors/serviceNotAvailableError";
+
 import { IExchangeRateService } from "./exchangeRateService"; 
 
 
@@ -12,7 +13,7 @@ export class CurrencyConverter {
     public Convert(amount: number, fromCurrency: string, toCurrency: string): number{
         this.validateAmount(amount);
         const exchangeRate = this.getExchangeRate(fromCurrency, toCurrency); 
-        this.validateExchangeRate(exchangeRate);
+        //this.validateExchangeRate(exchangeRate);
         return amount * exchangeRate;
     }
     
@@ -21,12 +22,20 @@ export class CurrencyConverter {
         const currentDate = new Date(startDate);
         
         if (endDate<startDate){
-            throw new endDateError('The enddate less than startdate.');
+            throw new EndDateError('The enddate less than startdate.');
         } else {
 
             while (currentDate <= endDate) { 
-                    const exchangeRate = this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency); 
-                    this.validateExchangeRate(exchangeRate); 
+                    let exchangeRate=0;
+                    try {
+                        exchangeRate = this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
+                    } catch (error) {
+                        if (error instanceof ServiceNotAvailableError){
+                            throw error;
+                        }
+                        throw new UnknownError('Unknown service error happened.', error as Error);
+                    }
+                    //this.validateExchangeRate(exchangeRate); 
                     this.calculateConversion(exchangeRate, conversions, currentDate);
             }
             
@@ -42,7 +51,7 @@ export class CurrencyConverter {
                 throw error;
             }
             
-            throw new MyError('Unknown service error happened.', error as Error);
+            throw new UnknownError('Unknown service error happened.', error as Error);
         }
         
     }
@@ -53,7 +62,7 @@ export class CurrencyConverter {
         currentDate.setDate(currentDate.getDate() + 1);
     }
     
-    private validateExchangeRate(exchangeRate: number) { 
+    /*private validateExchangeRate(exchangeRate: number) { 
         if (!exchangeRate) {
             throw new Error('Unable to fetch exchange rate.');
         }
@@ -61,7 +70,7 @@ export class CurrencyConverter {
         if (isNaN(exchangeRate)) {
             throw new Error('Invalid exchange rate.');
         }
-    }
+    }*/
     
     private validateAmount(amount: number) { 
         if (isNaN(amount) || amount<0) {

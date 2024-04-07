@@ -17,9 +17,9 @@ export class IExchangeRateService{
             }
         };
 
-        if (exchangeRates[fromCurrency] && exchangeRates[fromCurrency][toCurrency]) {
+        try {
             return exchangeRates[fromCurrency][toCurrency];
-        } else {
+        } catch (error) {
             throw new ServiceNotAvailableError("Exchange rate not found.");
         }
     }
