@@ -90,10 +90,10 @@ describe('Currency Converter test', () => {
 
         it('should throw an Exchange rate not found error if the rate is empty', () => {
             // Arrange
-            const errorMessage = 'Exchange rate not found.';
+            const errorMessage = 'Some error happened.';
             const expectedError = new Error(errorMessage);
-            const myErrorMessage = 'Exchange rate not found.';
-            const myExpectedError = new ServiceNotAvailableError(myErrorMessage, expectedError);
+            const myErrorMessage = 'Unknown service error happened.';
+            const myExpectedError = new MyError(myErrorMessage, expectedError);
             mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
 
             // Act
