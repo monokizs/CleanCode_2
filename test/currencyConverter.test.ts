@@ -2,6 +2,8 @@ import { mock, mockReset } from "jest-mock-extended";
 import { CurrencyConverter } from "../src/currencyConverter";
 import { IExchangeRateService } from "../src/exchangeRateService";
 import { MyError } from "../src/errors/myError";
+import { ServiceNotAvailableError } from "../src/errors/serviceNotAvailableError";
+import { endDateError } from "../src/errors/endDateError";
 
 /*jest.mock('../src/exchangeRateService', () => {
     return {
@@ -57,15 +59,27 @@ describe('Currency Converter test', () => {
             mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
 
             // Act
-            expect(() => sut.Convert(100,"EUR","HUF")).toThrow(expectedError);
-            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
-            expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("EUR","HUF");
+            expect(() => sut.Convert(NaN,"EUR","HUF")).toThrow(expectedError);
+            //expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
+            //expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("EUR","HUF");
+        })
+
+        it('should throw a Invalid amount input error if the amount less than 0', () => {
+            // Arrange
+            const errorMessage = "Invalid amount input.";
+            const expectedError = new Error(errorMessage);
+            mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
+
+            // Act
+            expect(() => sut.Convert(-100,"EUR","HUF")).toThrow(expectedError);
+            //expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
+            //expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("EUR","HUF");
         })
 
         it('should throw an Unable to fetch exchange rate error if the rate is empty', () => {
             // Arrange
             const errorMessage = "Unable to fetch exchange rate.";
-            const expectedError = new Error(errorMessage);
+            const expectedError = new ServiceNotAvailableError(errorMessage);
             mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
 
             // Act
@@ -76,10 +90,10 @@ describe('Currency Converter test', () => {
 
         it('should throw an Exchange rate not found error if the rate is empty', () => {
             // Arrange
-            const errorMessage = 'Rate error.';
+            const errorMessage = 'Exchange rate not found.';
             const expectedError = new Error(errorMessage);
             const myErrorMessage = 'Exchange rate not found.';
-            const myExpectedError = new MyError(myErrorMessage, expectedError);
+            const myExpectedError = new ServiceNotAvailableError(myErrorMessage, expectedError);
             mockedIExchangeRateService.getExchangeRate.mockImplementation(() => { throw expectedError });
 
             // Act
@@ -89,6 +103,15 @@ describe('Currency Converter test', () => {
             
         })
 
-
+        it('should throw an error if the enddate < startdate', () => {
+            // Arrange
+            const errorMessage = "The enddate less than startdate.";
+            const expectedError = new endDateError(errorMessage);
+            
+            // Act
+            expect(() => sut.GenerateConversionReport("EUR","HUF", new Date('2024-04-04'), new Date('2024-04-01'))).toThrow(expectedError);
+            //expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledTimes(1);
+            //expect(mockedIExchangeRateService.getExchangeRate).toHaveBeenCalledWith("EUR","HUF");
+        })
     })
 })

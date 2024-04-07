@@ -1,4 +1,6 @@
+import { endDateError } from "./errors/endDateError";
 import { MyError } from "./errors/myError";
+import { ServiceNotAvailableError } from "./errors/serviceNotAvailableError";
 import { IExchangeRateService } from "./exchangeRateService"; 
 
 
@@ -18,24 +20,29 @@ export class CurrencyConverter {
         const conversions: number[] = [];
         const currentDate = new Date(startDate);
         
-        while (currentDate <= endDate) { 
-            try{
-                const exchangeRate = this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency); 
-                this.validateExchangeRate(exchangeRate); 
-                this.calculateConversion(exchangeRate, conversions, currentDate);
-            } catch (error) {
-                throw new MyError('Exchange rate not found.', error as Error);
+        if (endDate<startDate){
+            throw new endDateError('The enddate less than startdate.');
+        } else {
+
+            while (currentDate <= endDate) { 
+                    const exchangeRate = this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency); 
+                    this.validateExchangeRate(exchangeRate); 
+                    this.calculateConversion(exchangeRate, conversions, currentDate);
             }
+            
+            return `Conversion Report:\n${conversions.join('\n')}`;
         }
-        
-        return `Conversion Report:\n${conversions.join('\n')}`;
     }
     
     private getExchangeRate(fromCurrency: string, toCurrency: string) {
         try {
             return this.exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
         } catch (error) {
-            throw new MyError('Exchange rate not found.', error as Error);
+            if (error instanceof ServiceNotAvailableError){
+                throw error;
+            }
+            
+            throw new MyError('Unknown service error happened.', error as Error);
         }
         
     }
@@ -57,7 +64,7 @@ export class CurrencyConverter {
     }
     
     private validateAmount(amount: number) { 
-        if (isNaN(amount)) {
+        if (isNaN(amount) || amount<0) {
             throw new Error('Invalid amount input.');
         }
     }

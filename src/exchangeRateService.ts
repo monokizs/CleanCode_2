@@ -1,3 +1,5 @@
+import { ServiceNotAvailableError } from "./errors/serviceNotAvailableError";
+
 export class IExchangeRateService{
     public getExchangeRate(fromCurrency: string, toCurrency: string): number {
         const exchangeRates: { [key: string]: { [key: string]: number } } = {
@@ -18,7 +20,7 @@ export class IExchangeRateService{
         if (exchangeRates[fromCurrency] && exchangeRates[fromCurrency][toCurrency]) {
             return exchangeRates[fromCurrency][toCurrency];
         } else {
-            throw new Error("Exchange rate not found.");
+            throw new ServiceNotAvailableError("Exchange rate not found.");
         }
     }
 
